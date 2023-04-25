@@ -96,6 +96,71 @@ Recommended Mitigation Steps:
 
 <br>
 <hr>
+
+## 4. `call` opcode’s return value not checked.
+
+_In the low level functions that return ETH to the user after an aggregate trade fails to validate the return value of the ETH transfer. If the transfer fails, the user's ETH would become stuck in the contract._
+
+```java
+function _returnETHIfAny() internal {
+    assembly {
+        if gt(selfbalance(), 0) {
+            let status := call(gas(), caller(), selfbalance(), 0, 0, 0, 0)
+        }
+    }
+}
+```
+
+Recommended Mitigation Steps:
+
+-   Confirm that the call returns true.
+-   Check the return value the call opcode.
+
+```java
+function _returnETHIfAny() internal {
+    assembly {
+        if gt(selfbalance(), 0) {
+            let status := call(gas(), caller(), selfbalance(), 0, 0, 0, 0)
+        }
+    }
+
++   if (!status) revert ETHTransferFail();
+}
+```
+
+## 5. Unchecked return value from low-level `call()`
+
+_The return value of the low-level call is not checked, so if the call fails, the Ether will be locked in the contract. If the low level is used to prevent blocking operations, consider logging failed calls._
+
+```ts
+address(INTERMEDIATE_TOKEN).call{value: msg.value}("");
+```
+
+Recommended Mitigation Steps:
+
+-   Add condition to check return value.
+
+<br>
+<hr>
+
+## 6. ERC20 return values not checked.
+
+_The `ERC20.transfer()` and `ERC20.transferFrom()` functions return a boolean value indicating success. This parameter needs to be checked for success. Some tokens do not revert if the transfer failed but return `false` instead._
+
+See:
+
+-   `SingleNativeTokenExitV2.exit`’s `outputToken.transfer(msg.sender, outputTokenBalance);`
+-   `PieFactoryContract.bakePie`’s `pie.transfer(msg.sender, _initialSupply);`
+
+Impact:
+_Tokens that don’t actually perform the transfer and return `false` are still counted as a correct transfer and the tokens remain in the `SingleNativeTokenExitV2` contract and could potentially be stolen by someone else._
+
+Recommended Mitigation Steps:
+
+-   We recommend using [OpenZeppelin’s](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.1/contracts/token/ERC20/utils/SafeERC20.sol#L74) `SafeERC20` versions with the `safeTransfer` and `safeTransferFrom` functions that handle the return value check as well as non-standard-compliant tokens.
+
+<br>
+<hr>
 <br>
 
 based on real reports [Code4arena](https://code4rena.com/reports)
