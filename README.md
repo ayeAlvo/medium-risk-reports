@@ -1,6 +1,6 @@
 # Medium Risk Reports
 
-## 1. [M-01] Use `safeTransferFrom` Instead of `transferFrom` for `ERC721`
+## 1. [M-01] Use `safeTransferFrom` Instead of `transferFrom` for `ERC721`. - Use of `transferFrom()` rather than `safeTransferFrom()` for NFTs in will lead to the loss of NFTs.
 
 _Use of `transferFrom` method for ERC721 transfer is discouraged and recommended to use `safeTransferFrom` whenever possible by OpenZeppelin.
 This is because `transferFrom()` cannot check whether the receiving address know how to handle ERC721 tokens._
