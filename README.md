@@ -161,6 +161,25 @@ Recommended Mitigation Steps:
 
 <br>
 <hr>
+
+## 7. The `owner` is a single point of failure and a centralization risk.
+
+_Having a single EOA as the only owner of contracts is a large centralization risk and a single point of failure. A single private key may be taken in a hack, or the sole holder of the key may become unable to retrieve the key when necessary. Consider changing to a multi-signature setup, or having a role-based authorization model._
+
+[Example](https://github.com/code-423n4/2023-05-venus/blob/9853f6f4fe906b635e214b22de9f627c6a17ba5b/contracts/Comptroller.sol#L927-L927):
+
+```java
+File: contracts/Comptroller.sol
+
+927:     function addRewardsDistributor(RewardsDistributor _rewardsDistributor) external onlyOwner {
+
+961:     function setPriceOracle(PriceOracle newOracle) external onlyOwner {
+
+973:     function setMaxLoopsLimit(uint256 limit) external onlyOwner {
+```
+
+<br>
+<hr>
 <br>
 
 based on real reports [Code4arena](https://code4rena.com/reports)
